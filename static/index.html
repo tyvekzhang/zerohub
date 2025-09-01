@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .success {
+            background: #c6f6d5;
+            color: #2d7738;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦀 Projecte Generator</h1>
+            <p>Fill out necessary information to init your project</p>
+        </div>
+
+        <form id="templateForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required placeholder="Enter your username">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="project_name">Project Name</label>
+                <input type="text" id="project_name" name="project_name" required placeholder="My Awesome Project">
+            </div>
+
+            <div class="form-group">
+                <label for="project_description">Project Description</label>
+                <textarea id="project_description" name="project_description" required placeholder="Describe what your project does and what makes it special..."></textarea>
+            </div>
+
+            <button type="button" class="submit-btn" id="serverZipBtn" style="background: linear-gradient(135deg, #48bb78, #38a169);">
+                Download Server Zip
+            </button>
+            
+            <button type="button" class="submit-btn" id="clientZipBtn" style="margin-top: 15px; background: linear-gradient(135deg, #ed8936, #dd6b20);">
+                Download Client Zip
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            Generating your template...
+        </div>
+
+        <div class="error" id="error"></div>
+        <div class="success" id="success"></div>
+    </div>
+
+    <script>
+        // Server zip download functionality
+        document.getElementById('serverZipBtn').addEventListener('click', async function() {
+            await downloadZip('/generate-server-zip', 'server');
+        });
+
+        // Client zip download functionality
+        document.getElementById('clientZipBtn').addEventListener('click', async function() {
+            await downloadZip('/generate-client-zip', 'client');
+        });
+
+        // Generic zip download function
+        async function downloadZip(endpoint, type) {
+            const serverZipBtn = document.getElementById('serverZipBtn');
+            const clientZipBtn = document.getElementById('clientZipBtn');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const success = document.getElementById('success');
+            
+            // Reset states
+            error.style.display = 'none';
+            success.style.display = 'none';
+            loading.style.display = 'block';
+            loading.textContent = `Generating ${type} zip file...`;
+            serverZipBtn.disabled = true;
+            clientZipBtn.disabled = true;
+            
+            // Collect form data
+            const formData = {
+                username: document.getElementById('username').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                project_name: document.getElementById('project_name').value.trim(),
+                project_description: document.getElementById('project_description').value.trim()
+            };
+            
+            // Validate form data
+            if (!formData.username || !formData.email || !formData.project_name || !formData.project_description) {
+                error.textContent = 'Please fill in all fields before downloading.';
+                error.style.display = 'block';
+                loading.style.display = 'none';
+                serverZipBtn.disabled = false;
+                clientZipBtn.disabled = false;
+                return;
+            }
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    // Get the filename from Content-Disposition header
+                    const contentDisposition = response.headers.get('Content-Disposition');
+                    let filename = `${type}.zip`;
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(/filename="(.+)"/);  
+                        if (filenameMatch) {
+                            filename = filenameMatch[1];
+                        }
+                    }
+                    
+                    // Create blob and download
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    success.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} zip file generated successfully! Download started: ${filename}`;
+                    success.style.display = 'block';
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Failed to generate ${type} zip file`);
+                }
+            } catch (err) {
+                error.textContent = `Error: ${err.message}`;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+                loading.textContent = 'Generating zip file...';
+                serverZipBtn.disabled = false;
+                clientZipBtn.disabled = false;
+            }
+        }
+
+        // Add some input validation and UX improvements
+        const inputs = document.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.validity.valid) {
+                    this.style.borderColor = '#48bb78';
+                } else {
+                    this.style.borderColor = '#e2e8f0';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

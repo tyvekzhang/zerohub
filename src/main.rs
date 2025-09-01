@@ -4,7 +4,6 @@ use handlebars::Handlebars;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::{Write, Read, Seek, SeekFrom, Cursor};
-use std::path::Path;
 use uuid::Uuid;
 use zip::{ZipWriter, ZipArchive, write::FileOptions, CompressionMethod};
 use tempfile::NamedTempFile;

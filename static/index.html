@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -182,6 +183,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -207,16 +209,25 @@
 
             <div class="form-group">
                 <label for="project_description">Project Description</label>
-                <textarea id="project_description" name="project_description" required placeholder="Describe what your project does and what makes it special..."></textarea>
+                <textarea id="project_description" name="project_description" required
+                    placeholder="Describe what your project does and what makes it special..."></textarea>
             </div>
 
-            <button type="button" class="submit-btn" id="serverZipBtn" style="background: linear-gradient(135deg, #48bb78, #38a169);">
+            <button type="button" class="submit-btn" id="randomFillBtn"
+                style="margin-top: 15px; background: linear-gradient(135deg, #9f7aea, #805ad5);">
+                🎲 Random Fill All Fields
+            </button>
+
+            <button type="button" class="submit-btn" id="serverZipBtn"
+                style="background: linear-gradient(135deg, #48bb78, #38a169);">
                 Download Server Zip
             </button>
-            
-            <button type="button" class="submit-btn" id="clientZipBtn" style="margin-top: 15px; background: linear-gradient(135deg, #ed8936, #dd6b20);">
+
+            <button type="button" class="submit-btn" id="clientZipBtn"
+                style="margin-top: 15px; background: linear-gradient(135deg, #ed8936, #dd6b20);">
                 Download Client Zip
             </button>
+
         </form>
 
         <div class="loading" id="loading">
@@ -228,13 +239,72 @@
     </div>
 
     <script>
+        // Random data arrays for generation
+        const randomData = {
+            usernames: ['alex_dev', 'sarah_code', 'mike_tech', 'emma_build', 'john_stack', 'lisa_web', 'tom_api', 'anna_full', 'dave_rust', 'jane_sys'],
+            domains: ['gmail.com', 'outlook.com', 'yahoo.com', 'hotmail.com', 'protonmail.com', 'icloud.com'],
+            projectTypes: ['Web App', 'API Service', 'Desktop Tool', 'Mobile App', 'CLI Tool', 'Library', 'Framework', 'Plugin'],
+            techStacks: ['React', 'Vue.js', 'Angular', 'Svelte', 'Node.js', 'Python', 'Rust', 'Go', 'TypeScript', 'JavaScript'],
+            adjectives: ['awesome', 'modern', 'fast', 'secure', 'scalable', 'elegant', 'powerful', 'lightweight', 'robust', 'innovative'],
+            nouns: ['platform', 'system', 'tool', 'application', 'service', 'framework', 'solution', 'engine', 'manager', 'generator']
+        };
+
+        // Random generation function
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        // Generate random project name
+        function generateProjectName() {
+            const adjective = getRandomItem(randomData.adjectives);
+            const noun = getRandomItem(randomData.nouns);
+            const tech = getRandomItem(randomData.techStacks);
+            return `${adjective.charAt(0).toUpperCase() + adjective.slice(1)} ${tech} ${noun.charAt(0).toUpperCase() + noun.slice(1)}`;
+        }
+
+        // Generate random project description
+        function generateProjectDescription(projectName, projectType) {
+            const templates = [
+                `${projectName} is a ${projectType.toLowerCase()} built with modern technologies. It provides a seamless user experience and robust functionality for developers and end-users alike.`,
+                `This ${projectType.toLowerCase()} offers cutting-edge features and performance optimization. ${projectName} is designed to be scalable, maintainable, and developer-friendly.`,
+                `${projectName} is an innovative ${projectType.toLowerCase()} that solves real-world problems with elegant solutions. Built with best practices and modern architecture patterns.`,
+                `A comprehensive ${projectType.toLowerCase()} that combines powerful features with intuitive design. ${projectName} is perfect for both beginners and advanced users.`
+            ];
+            return getRandomItem(templates);
+        }
+
+        // Random fill functionality
+        document.getElementById('randomFillBtn').addEventListener('click', function () {
+            const username = getRandomItem(randomData.usernames);
+            const domain = getRandomItem(randomData.domains);
+            const projectType = getRandomItem(randomData.projectTypes);
+            const projectName = generateProjectName();
+            const projectDescription = generateProjectDescription(projectName, projectType);
+
+            // Fill the form fields
+            document.getElementById('username').value = username;
+            document.getElementById('email').value = `${username}@${domain}`;
+            document.getElementById('project_name').value = projectName;
+            document.getElementById('project_description').value = projectDescription;
+
+            // Add visual feedback
+            const button = this;
+            const originalText = button.textContent;
+            button.textContent = '✨ Fields Filled!';
+            button.style.background = 'linear-gradient(135deg, #48bb78, #38a169)';
+
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = 'linear-gradient(135deg, #9f7aea, #805ad5)';
+            }, 2000);
+        });
         // Server zip download functionality
-        document.getElementById('serverZipBtn').addEventListener('click', async function() {
+        document.getElementById('serverZipBtn').addEventListener('click', async function () {
             await downloadZip('/generate-server-zip', 'server');
         });
 
         // Client zip download functionality
-        document.getElementById('clientZipBtn').addEventListener('click', async function() {
+        document.getElementById('clientZipBtn').addEventListener('click', async function () {
             await downloadZip('/generate-client-zip', 'client');
         });
 
@@ -245,7 +315,7 @@
             const loading = document.getElementById('loading');
             const error = document.getElementById('error');
             const success = document.getElementById('success');
-            
+
             // Reset states
             error.style.display = 'none';
             success.style.display = 'none';
@@ -253,7 +323,7 @@
             loading.textContent = `Generating ${type} zip file...`;
             serverZipBtn.disabled = true;
             clientZipBtn.disabled = true;
-            
+
             // Collect form data
             const formData = {
                 username: document.getElementById('username').value.trim(),
@@ -261,7 +331,7 @@
                 project_name: document.getElementById('project_name').value.trim(),
                 project_description: document.getElementById('project_description').value.trim()
             };
-            
+
             // Validate form data
             if (!formData.username || !formData.email || !formData.project_name || !formData.project_description) {
                 error.textContent = 'Please fill in all fields before downloading.';
@@ -271,7 +341,7 @@
                 clientZipBtn.disabled = false;
                 return;
             }
-            
+
             try {
                 const response = await fetch(endpoint, {
                     method: 'POST',
@@ -280,18 +350,18 @@
                     },
                     body: JSON.stringify(formData)
                 });
-                
+
                 if (response.ok) {
                     // Get the filename from Content-Disposition header
                     const contentDisposition = response.headers.get('Content-Disposition');
                     let filename = `${type}.zip`;
                     if (contentDisposition) {
-                        const filenameMatch = contentDisposition.match(/filename="(.+)"/);  
+                        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
                         if (filenameMatch) {
                             filename = filenameMatch[1];
                         }
                     }
-                    
+
                     // Create blob and download
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
@@ -303,7 +373,7 @@
                     a.click();
                     window.URL.revokeObjectURL(url);
                     document.body.removeChild(a);
-                    
+
                     success.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} zip file generated successfully! Download started: ${filename}`;
                     success.style.display = 'block';
                 } else {
@@ -324,7 +394,7 @@
         // Add some input validation and UX improvements
         const inputs = document.querySelectorAll('input, textarea');
         inputs.forEach(input => {
-            input.addEventListener('input', function() {
+            input.addEventListener('input', function () {
                 if (this.validity.valid) {
                     this.style.borderColor = '#48bb78';
                 } else {
@@ -334,4 +404,5 @@
         });
     </script>
 </body>
+
 </html>

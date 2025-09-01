@@ -1,9 +1,17 @@
-use actix_files::Files;
-use actix_web::{web, App, HttpResponse, HttpServer, Result, middleware::Logger};
-use handlebars::Handlebars;
+use axum::{
+    extract::Json,
+    http::{header, StatusCode},
+    response::{Html, IntoResponse},
+    routing::{get, post},
+    Router,
+};
+
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::{Write, Read, Seek, SeekFrom, Cursor};
+use tower::ServiceBuilder;
+use tower_http::{services::ServeDir, trace::TraceLayer};
+use tracing_subscriber;
 use uuid::Uuid;
 use zip::{ZipWriter, ZipArchive, write::FileOptions, CompressionMethod};
 use tempfile::NamedTempFile;
@@ -39,9 +47,7 @@ impl From<UserInfo> for TemplateData {
     }
 }
 
-pub struct AppState {
-    pub handlebars: Handlebars<'static>,
-}
+
 
 // Helper function to fill template content with user data
 fn fill_template_content(content: &str, data: &TemplateData) -> String {
@@ -155,26 +161,24 @@ fn create_client_zip(data: &TemplateData) -> Result<Vec<u8>, Box<dyn std::error:
 }
 
 // Health check endpoint
-async fn health() -> Result<HttpResponse> {
-    Ok(HttpResponse::Ok().json(serde_json::json!({
+async fn health() -> impl IntoResponse {
+    Json(serde_json::json!({
         "status": "healthy",
         "service": "rust-template-generator"
-    })))
+    }))
 }
 
 // Serve the main form page
-async fn index() -> Result<HttpResponse> {
+async fn index() -> impl IntoResponse {
     let html = include_str!("../static/index.html");
-    Ok(HttpResponse::Ok()
-        .content_type("text/html; charset=utf-8")
-        .body(html))
+    Html(html)
 }
 
 // Generate server zip file endpoint
 async fn generate_server_zip(
-    user_info: web::Json<UserInfo>,
-) -> Result<HttpResponse> {
-    let template_data: TemplateData = user_info.into_inner().into();
+    Json(user_info): Json<UserInfo>,
+) -> impl IntoResponse {
+    let template_data: TemplateData = user_info.into();
     
     match create_server_zip(&template_data) {
         Ok(zip_data) => {
@@ -182,25 +186,27 @@ async fn generate_server_zip(
                 template_data.project_name.replace(" ", "_").to_lowercase()
             );
             
-            Ok(HttpResponse::Ok()
-                .insert_header(("Content-Type", "application/zip"))
-                .insert_header(("Content-Disposition", format!("attachment; filename=\"{}\"", filename)))
-                .body(zip_data))
+            let headers = [
+                (header::CONTENT_TYPE, "application/zip"),
+                (header::CONTENT_DISPOSITION, &format!("attachment; filename=\"{}\"", filename)),
+            ];
+            
+            (StatusCode::OK, headers, zip_data).into_response()
         }
         Err(e) => {
             eprintln!("Server zip creation error: {}", e);
-            Ok(HttpResponse::InternalServerError().json(serde_json::json!({
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({
                 "error": "Failed to create server zip file"
-            })))
+            }))).into_response()
         }
     }
 }
 
 // Generate client zip file endpoint
 async fn generate_client_zip(
-    user_info: web::Json<UserInfo>,
-) -> Result<HttpResponse> {
-    let template_data: TemplateData = user_info.into_inner().into();
+    Json(user_info): Json<UserInfo>,
+) -> impl IntoResponse {
+    let template_data: TemplateData = user_info.into();
     
     match create_client_zip(&template_data) {
         Ok(zip_data) => {
@@ -208,41 +214,43 @@ async fn generate_client_zip(
                 template_data.project_name.replace(" ", "_").to_lowercase()
             );
             
-            Ok(HttpResponse::Ok()
-                .insert_header(("Content-Type", "application/zip"))
-                .insert_header(("Content-Disposition", format!("attachment; filename=\"{}\"", filename)))
-                .body(zip_data))
+            let headers = [
+                (header::CONTENT_TYPE, "application/zip"),
+                (header::CONTENT_DISPOSITION, &format!("attachment; filename=\"{}\"", filename)),
+            ];
+            
+            (StatusCode::OK, headers, zip_data).into_response()
         }
         Err(e) => {
             eprintln!("Client zip creation error: {}", e);
-            Ok(HttpResponse::InternalServerError().json(serde_json::json!({
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({
                 "error": "Failed to create client zip file"
-            })))
+            }))).into_response()
         }
     }
 }
 
 #[tokio::main]
-async fn main() -> std::io::Result<()> {
-    env_logger::init();
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    tracing_subscriber::fmt::init();
 
-    let app_state = web::Data::new(AppState { 
-        handlebars: Handlebars::new() 
-    });
+    // Build the router
+    let app = Router::new()
+        .route("/", get(index))
+        .route("/health", get(health))
+        .route("/generate-server-zip", post(generate_server_zip))
+        .route("/generate-client-zip", post(generate_client_zip))
+        .nest_service("/static", ServeDir::new("./static"))
+        .layer(
+            ServiceBuilder::new()
+                .layer(TraceLayer::new_for_http())
+        );
 
     println!("🚀 Server starting at http://localhost:8080");
 
-    HttpServer::new(move || {
-        App::new()
-            .app_data(app_state.clone())
-            .wrap(Logger::default())
-            .route("/", web::get().to(index))
-            .route("/health", web::get().to(health))
-            .route("/generate-server-zip", web::post().to(generate_server_zip))
-            .route("/generate-client-zip", web::post().to(generate_client_zip))
-            .service(Files::new("/static", "./static").prefer_utf8(true))
-    })
-    .bind("127.0.0.1:8080")?
-    .run()
-    .await
+    // Start the server
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:8080").await?;
+    axum::serve(listener, app).await?;
+    
+    Ok(())
 }

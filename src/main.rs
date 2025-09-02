@@ -60,10 +60,24 @@ fn fill_template_content(content: &str, data: &TemplateData) -> String {
 
 // Create server zip file with filled templates
 fn create_server_zip(data: &TemplateData) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+    println!("[DEBUG] Starting server zip creation...");
     let zero_zip_path = "templates/server/zero.zip";
     
+    // Check if file exists before reading
+    if !std::path::Path::new(zero_zip_path).exists() {
+        let error_msg = format!("File not found: {}", zero_zip_path);
+        eprintln!("[ERROR] {}", error_msg);
+        return Err(error_msg.into());
+    }
+    
+    println!("[DEBUG] Reading zero.zip from: {}", zero_zip_path);
     // Read existing zero.zip
-    let zero_zip_data = fs::read(zero_zip_path)?;
+    let zero_zip_data = fs::read(zero_zip_path).map_err(|e| {
+        let error_msg = format!("Failed to read {}: {}", zero_zip_path, e);
+        eprintln!("[ERROR] {}", error_msg);
+        error_msg
+    })?;
+    
     let mut temp_file = NamedTempFile::new()?;
     
     {
@@ -85,17 +99,35 @@ fn create_server_zip(data: &TemplateData) -> Result<Vec<u8>, Box<dyn std::error:
         }
         
         // Add filled template files
-        let license_content = fs::read_to_string("templates/server/LICENSE")?;
+        let license_path = "templates/server/LICENSE";
+        if !std::path::Path::new(license_path).exists() {
+            let error_msg = format!("File not found: {}", license_path);
+            eprintln!("[ERROR] {}", error_msg);
+            return Err(error_msg.into());
+        }
+        let license_content = fs::read_to_string(license_path)?;
         let filled_license = fill_template_content(&license_content, data);
         zip.start_file("LICENSE", options)?;
         zip.write_all(filled_license.as_bytes())?;
 
-        let pyproject_content = fs::read_to_string("templates/server/pyproject.toml")?;
+        let pyproject_path = "templates/server/pyproject.toml";
+        if !std::path::Path::new(pyproject_path).exists() {
+            let error_msg = format!("File not found: {}", pyproject_path);
+            eprintln!("[ERROR] {}", error_msg);
+            return Err(error_msg.into());
+        }
+        let pyproject_content = fs::read_to_string(pyproject_path)?;
         let filled_pyproject = fill_template_content(&pyproject_content, data);
         zip.start_file("pyproject.toml", options)?;
         zip.write_all(filled_pyproject.as_bytes())?;
 
-        let readme_content = fs::read_to_string("templates/server/README.md")?;
+        let readme_path = "templates/server/README.md";
+        if !std::path::Path::new(readme_path).exists() {
+            let error_msg = format!("File not found: {}", readme_path);
+            eprintln!("[ERROR] {}", error_msg);
+            return Err(error_msg.into());
+        }
+        let readme_content = fs::read_to_string(readme_path)?;
         let filled_readme = fill_template_content(&readme_content, data);
         zip.start_file("README.md", options)?;
         zip.write_all(filled_readme.as_bytes())?;
@@ -106,15 +138,30 @@ fn create_server_zip(data: &TemplateData) -> Result<Vec<u8>, Box<dyn std::error:
     let mut buffer = Vec::new();
     temp_file.seek(SeekFrom::Start(0))?;
     temp_file.read_to_end(&mut buffer)?;
+    println!("[DEBUG] Server zip created successfully, size: {} bytes", buffer.len());
     Ok(buffer)
 }
 
 // Create client zip file with filled templates  
 fn create_client_zip(data: &TemplateData) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+    println!("[DEBUG] Starting client zip creation...");
     let zero_client_zip_path = "templates/client/zero-client.zip";
     
+    // Check if file exists before reading
+    if !std::path::Path::new(zero_client_zip_path).exists() {
+        let error_msg = format!("File not found: {}", zero_client_zip_path);
+        eprintln!("[ERROR] {}", error_msg);
+        return Err(error_msg.into());
+    }
+    
+    println!("[DEBUG] Reading zero-client.zip from: {}", zero_client_zip_path);
     // Read existing zero-client.zip
-    let zero_client_zip_data = fs::read(zero_client_zip_path)?;
+    let zero_client_zip_data = fs::read(zero_client_zip_path).map_err(|e| {
+        let error_msg = format!("Failed to read {}: {}", zero_client_zip_path, e);
+        eprintln!("[ERROR] {}", error_msg);
+        error_msg
+    })?;
+    
     let mut temp_file = NamedTempFile::new()?;
     
     {
@@ -136,17 +183,35 @@ fn create_client_zip(data: &TemplateData) -> Result<Vec<u8>, Box<dyn std::error:
         }
         
         // Add filled template files
-        let license_content = fs::read_to_string("templates/client/LICENSE")?;
+        let license_path = "templates/client/LICENSE";
+        if !std::path::Path::new(license_path).exists() {
+            let error_msg = format!("File not found: {}", license_path);
+            eprintln!("[ERROR] {}", error_msg);
+            return Err(error_msg.into());
+        }
+        let license_content = fs::read_to_string(license_path)?;
         let filled_license = fill_template_content(&license_content, data);
         zip.start_file("LICENSE", options)?;
         zip.write_all(filled_license.as_bytes())?;
 
-        let package_content = fs::read_to_string("templates/client/package.json")?;
+        let package_path = "templates/client/package.json";
+        if !std::path::Path::new(package_path).exists() {
+            let error_msg = format!("File not found: {}", package_path);
+            eprintln!("[ERROR] {}", error_msg);
+            return Err(error_msg.into());
+        }
+        let package_content = fs::read_to_string(package_path)?;
         let filled_package = fill_template_content(&package_content, data);
         zip.start_file("package.json", options)?;
         zip.write_all(filled_package.as_bytes())?;
 
-        let readme_content = fs::read_to_string("templates/client/README.md")?;
+        let readme_path = "templates/client/README.md";
+        if !std::path::Path::new(readme_path).exists() {
+            let error_msg = format!("File not found: {}", readme_path);
+            eprintln!("[ERROR] {}", error_msg);
+            return Err(error_msg.into());
+        }
+        let readme_content = fs::read_to_string(readme_path)?;
         let filled_readme = fill_template_content(&readme_content, data);
         zip.start_file("README.md", options)?;
         zip.write_all(filled_readme.as_bytes())?;
@@ -157,6 +222,7 @@ fn create_client_zip(data: &TemplateData) -> Result<Vec<u8>, Box<dyn std::error:
     let mut buffer = Vec::new();
     temp_file.seek(SeekFrom::Start(0))?;
     temp_file.read_to_end(&mut buffer)?;
+    println!("[DEBUG] Client zip created successfully, size: {} bytes", buffer.len());
     Ok(buffer)
 }
 
@@ -178,6 +244,7 @@ async fn index() -> impl IntoResponse {
 async fn generate_server_zip(
     Json(user_info): Json<UserInfo>,
 ) -> impl IntoResponse {
+    println!("[DEBUG] Received request to generate server zip for user: {}", user_info.username);
     let template_data: TemplateData = user_info.into();
     
     match create_server_zip(&template_data) {
@@ -185,6 +252,8 @@ async fn generate_server_zip(
             let filename = format!("{}.zip", 
                 template_data.project_name.replace(" ", "_").to_lowercase()
             );
+            
+            println!("[DEBUG] Successfully created server zip: {}, size: {} bytes", filename, zip_data.len());
             
             let headers = [
                 (header::CONTENT_TYPE, "application/zip"),
@@ -194,9 +263,10 @@ async fn generate_server_zip(
             (StatusCode::OK, headers, zip_data).into_response()
         }
         Err(e) => {
-            eprintln!("Server zip creation error: {}", e);
+            eprintln!("[ERROR] Server zip creation error: {}", e);
+            println!("[ERROR] Full error details: {:?}", e);
             (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({
-                "error": "Failed to create server zip file"
+                "error": format!("Failed to create server zip file: {}", e)
             }))).into_response()
         }
     }
@@ -206,6 +276,7 @@ async fn generate_server_zip(
 async fn generate_client_zip(
     Json(user_info): Json<UserInfo>,
 ) -> impl IntoResponse {
+    println!("[DEBUG] Received request to generate client zip for user: {}", user_info.username);
     let template_data: TemplateData = user_info.into();
     
     match create_client_zip(&template_data) {
@@ -213,6 +284,8 @@ async fn generate_client_zip(
             let filename = format!("{}-client.zip", 
                 template_data.project_name.replace(" ", "_").to_lowercase()
             );
+            
+            println!("[DEBUG] Successfully created client zip: {}, size: {} bytes", filename, zip_data.len());
             
             let headers = [
                 (header::CONTENT_TYPE, "application/zip"),
@@ -222,9 +295,10 @@ async fn generate_client_zip(
             (StatusCode::OK, headers, zip_data).into_response()
         }
         Err(e) => {
-            eprintln!("Client zip creation error: {}", e);
+            eprintln!("[ERROR] Client zip creation error: {}", e);
+            println!("[ERROR] Full error details: {:?}", e);
             (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({
-                "error": "Failed to create client zip file"
+                "error": format!("Failed to create client zip file: {}", e)
             }))).into_response()
         }
     }
@@ -233,6 +307,46 @@ async fn generate_client_zip(
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
+
+    // Print debugging information
+    println!("[DEBUG] ============ Starting ZeroHub Server ============");
+    
+    // Print current working directory
+    let current_dir = std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("unknown"));
+    println!("[DEBUG] Current working directory: {:?}", current_dir);
+    
+    // Check if template directories exist
+    let templates_dir = std::path::Path::new("templates");
+    let server_dir = std::path::Path::new("templates/server");
+    let client_dir = std::path::Path::new("templates/client");
+    let static_dir = std::path::Path::new("static");
+    
+    println!("[DEBUG] Checking template directories:");
+    println!("[DEBUG] - templates/ exists: {}", templates_dir.exists());
+    println!("[DEBUG] - templates/server/ exists: {}", server_dir.exists());
+    println!("[DEBUG] - templates/client/ exists: {}", client_dir.exists());
+    println!("[DEBUG] - static/ exists: {}", static_dir.exists());
+    
+    // Check specific template files
+    let files_to_check = [
+        "templates/server/zero.zip",
+        "templates/server/LICENSE",
+        "templates/server/pyproject.toml",
+        "templates/server/README.md",
+        "templates/client/zero-client.zip",
+        "templates/client/LICENSE",
+        "templates/client/package.json",
+        "templates/client/README.md",
+        "static/index.html",
+    ];
+    
+    println!("[DEBUG] Checking template files:");
+    for file_path in &files_to_check {
+        let exists = std::path::Path::new(file_path).exists();
+        println!("[DEBUG] - {} exists: {}", file_path, exists);
+    }
+    
+    println!("[DEBUG] ===============================================");
 
     // Build the router
     let app = Router::new()

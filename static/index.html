@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Generator</title>
+    <title data-en="Project Generator" data-zh="项目生成器">Project Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -14,7 +14,7 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -37,6 +37,40 @@
         .header {
             text-align: center;
             margin-bottom: 40px;
+            position: relative;
+        }
+
+        .language-toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        .lang-toggle-btn {
+            position: absolute;
+            right: 0px;
+            top: 16px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            color: #667eea;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lang-toggle-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .lang-toggle-btn:active {
+            transform: translateY(0);
         }
 
         .header h1 {
@@ -58,6 +92,7 @@
 
         .form-group {
             margin-bottom: 25px;
+            position: relative;
         }
 
         .form-group label {
@@ -68,10 +103,17 @@
             font-size: 0.95rem;
         }
 
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
         .form-group input,
         .form-group textarea {
             width: 100%;
             padding: 12px 16px;
+            padding-right: 45px;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
             font-size: 1rem;
@@ -91,6 +133,51 @@
         .form-group textarea {
             resize: vertical;
             min-height: 120px;
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #a0aec0;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 4px;
+            border-radius: 50%;
+            display: none;
+            transition: all 0.2s ease;
+            z-index: 1;
+        }
+
+        .clear-btn:hover {
+            color: #e53e3e;
+            background: rgba(229, 62, 62, 0.1);
+        }
+
+        .form-group.has-content .clear-btn {
+            display: block;
+        }
+
+        .clear-all-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .clear-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(229, 62, 62, 0.3);
         }
 
         .submit-btn {
@@ -180,6 +267,13 @@
             .header p {
                 font-size: 1rem;
             }
+
+            .language-toggle {
+                position: relative;
+                display: flex;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
@@ -187,50 +281,81 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🦀 Projecte Generator</h1>
-            <p>Fill out necessary information to init your project</p>
+            <div class="language-toggle">
+                <button class="lang-toggle-btn" onclick="toggleLanguage()" id="langToggleBtn">
+                    <span id="langIcon">中</span>
+                </button>
+            </div>
+            <h1 data-en="🦀 Project Generator" data-zh="🦀 项目生成器">🦀 Project Generator</h1>
+            <p data-en="Fill out necessary information to init your project" data-zh="填写必要信息来初始化您的项目">Fill out necessary information to init your project</p>
         </div>
 
         <form id="templateForm">
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required placeholder="Enter your username">
+                <label for="username" data-en="Username" data-zh="用户名">Username</label>
+                <div class="input-wrapper">
+                    <input type="text" id="username" name="username" required 
+                           data-placeholder-en="Enter your username" 
+                           data-placeholder-zh="输入您的用户名" 
+                           placeholder="Enter your username">
+                    <button type="button" class="clear-btn" onclick="clearField('username')">×</button>
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+                <label for="email" data-en="Email Address" data-zh="邮箱地址">Email Address</label>
+                <div class="input-wrapper">
+                    <input type="email" id="email" name="email" required 
+                           data-placeholder-en="your.email@example.com" 
+                           data-placeholder-zh="您的邮箱@示例.com" 
+                           placeholder="your.email@example.com">
+                    <button type="button" class="clear-btn" onclick="clearField('email')">×</button>
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="project_name">Project Name</label>
-                <input type="text" id="project_name" name="project_name" required placeholder="My Awesome Project">
+                <label for="project_name" data-en="Project Name" data-zh="项目名称">Project Name</label>
+                <div class="input-wrapper">
+                    <input type="text" id="project_name" name="project_name" required 
+                           data-placeholder-en="My Awesome Project" 
+                           data-placeholder-zh="我的棒棒项目" 
+                           placeholder="My Awesome Project">
+                    <button type="button" class="clear-btn" onclick="clearField('project_name')">×</button>
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="project_description">Project Description</label>
-                <textarea id="project_description" name="project_description" required
-                    placeholder="Describe what your project does and what makes it special..."></textarea>
+                <label for="project_description" data-en="Project Description" data-zh="项目描述">Project Description</label>
+                <div class="input-wrapper">
+                    <textarea id="project_description" name="project_description" required
+                              data-placeholder-en="Describe what your project does and what makes it special..." 
+                              data-placeholder-zh="描述您的项目功能以及它的特色..."
+                              placeholder="Describe what your project does and what makes it special..."></textarea>
+                    <button type="button" class="clear-btn" onclick="clearField('project_description')">×</button>
+                </div>
             </div>
 
             <button type="button" class="submit-btn" id="randomFillBtn"
-                style="background: linear-gradient(135deg, #9f7aea, #805ad5);">
+                    style="background: linear-gradient(135deg, #9f7aea, #805ad5);" 
+                    data-en="🎲 Random Fill All Fields" data-zh="🎲 随机填充所有字段">
                 🎲 Random Fill All Fields
             </button>
 
             <button type="button" class="submit-btn" id="serverZipBtn"
-                style="margin-top: 15px; background: linear-gradient(135deg, #48bb78, #38a169);">
+                    style="margin-top: 15px; background: linear-gradient(135deg, #48bb78, #38a169);" 
+                    data-en="Download Server Zip" data-zh="下载服务端压缩包">
                 Download Server Zip
             </button>
 
             <button type="button" class="submit-btn" id="clientZipBtn"
-                style="margin-top: 15px; background: linear-gradient(135deg, #ed8936, #dd6b20);">
+                    style="margin-top: 15px; background: linear-gradient(135deg, #ed8936, #dd6b20);" 
+                    data-en="Download Client Zip" data-zh="下载客户端压缩包">
                 Download Client Zip
             </button>
 
         </form>
 
-        <div class="loading" id="loading">
+        <div class="loading" id="loading" data-en="Generating your template..." data-zh="正在生成您的模板...">
             Generating your template...
         </div>
 
@@ -239,14 +364,152 @@
     </div>
 
     <script>
+        // Language system
+        let currentLang = 'en';
+        
+        const translations = {
+            en: {
+                randomFillSuccess: '✨ Fields Filled!',
+                validationError: 'Please fill in all fields before downloading.',
+                downloadSuccess: ' zip file generated successfully! Download started: ',
+                downloadError: 'Error: ',
+                generatingZip: 'Generating zip file...',
+                generatingServer: 'Generating server zip file...',
+                generatingClient: 'Generating client zip file...'
+            },
+            zh: {
+                randomFillSuccess: '✨ 字段已填充！',
+                validationError: '请在下载前填写所有字段。',
+                downloadSuccess: ' 压缩包文件生成成功！下载已开始：',
+                downloadError: '错误：',
+                generatingZip: '正在生成压缩包文件...',
+                generatingServer: '正在生成服务端压缩包文件...',
+                generatingClient: '正在生成客户端压缩包文件...'
+            }
+        };
+
+        // Language toggle function
+        function toggleLanguage() {
+            // Toggle between languages
+            currentLang = currentLang === 'en' ? 'zh' : 'en';
+            
+            // Update button appearance
+            updateLanguageButton();
+            
+            // Update all translatable elements
+            document.querySelectorAll('[data-en][data-zh]').forEach(element => {
+                if (element.hasAttribute('data-' + currentLang)) {
+                    element.textContent = element.getAttribute('data-' + currentLang);
+                }
+            });
+            
+            // Update placeholders
+            document.querySelectorAll('input, textarea').forEach(input => {
+                const placeholderAttr = 'data-placeholder-' + currentLang;
+                if (input.hasAttribute(placeholderAttr)) {
+                    input.placeholder = input.getAttribute(placeholderAttr);
+                }
+            });
+            
+            // Update document title
+            const titleAttr = 'data-' + currentLang;
+            const titleElement = document.querySelector('title');
+            if (titleElement.hasAttribute(titleAttr)) {
+                titleElement.textContent = titleElement.getAttribute(titleAttr);
+            }
+        }
+
+        // Update language button appearance
+        function updateLanguageButton() {
+            const langIcon = document.getElementById('langIcon');
+            const langText = document.getElementById('langText');
+            
+            if (currentLang === 'en') {
+                langIcon.textContent = '中';
+            } else {
+                langIcon.textContent = 'us';
+            }
+        }
+
+        // Clear individual field function
+        function clearField(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.value = '';
+                updateClearButtonVisibility(field);
+                // Trigger input event to update validation styling
+                field.dispatchEvent(new Event('input'));
+            }
+        }
+
+        // Clear all fields function
+        function clearAllFields() {
+            const fields = ['username', 'email', 'project_name', 'project_description'];
+            fields.forEach(fieldId => {
+                clearField(fieldId);
+            });
+            
+            // Visual feedback
+            const button = document.querySelector('.clear-all-btn');
+            const originalText = button.textContent;
+            const successText = currentLang === 'en' ? '✨ All Fields Cleared!' : '✨ 所有字段已清空！';
+            
+            button.textContent = successText;
+            button.style.background = 'linear-gradient(135deg, #48bb78, #38a169)';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = 'linear-gradient(135deg, #e53e3e, #c53030)';
+            }, 2000);
+        }
+
+        // Update clear button visibility
+        function updateClearButtonVisibility(input) {
+            const formGroup = input.closest('.form-group');
+            if (input.value.trim() !== '') {
+                formGroup.classList.add('has-content');
+            } else {
+                formGroup.classList.remove('has-content');
+            }
+        }
+
+        // Initialize clear button visibility on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                updateClearButtonVisibility(input);
+                
+                // Update visibility on input
+                input.addEventListener('input', function() {
+                    updateClearButtonVisibility(this);
+                    
+                    // Update validation styling
+                    if (this.validity.valid) {
+                        this.style.borderColor = '#48bb78';
+                    } else {
+                        this.style.borderColor = '#e2e8f0';
+                    }
+                });
+            });
+        });
         // Random data arrays for generation
         const randomData = {
-            usernames: ['alex_dev', 'sarah_code', 'mike_tech', 'emma_build', 'john_stack', 'lisa_web', 'tom_api', 'anna_full', 'dave_rust', 'jane_sys'],
-            domains: ['gmail.com', 'outlook.com', 'yahoo.com', 'hotmail.com', 'protonmail.com', 'icloud.com'],
-            projectTypes: ['Web App', 'API Service', 'Desktop Tool', 'Mobile App', 'CLI Tool', 'Library', 'Framework', 'Plugin'],
-            techStacks: ['React', 'Vue.js', 'Angular', 'Svelte', 'Node.js', 'Python', 'Rust', 'Go', 'TypeScript', 'JavaScript'],
-            adjectives: ['awesome', 'modern', 'fast', 'secure', 'scalable', 'elegant', 'powerful', 'lightweight', 'robust', 'innovative'],
-            nouns: ['platform', 'system', 'tool', 'application', 'service', 'framework', 'solution', 'engine', 'manager', 'generator']
+            en: {
+                usernames: ['alex_dev', 'sarah_code', 'mike_tech', 'emma_build', 'john_stack', 'lisa_web', 'tom_api', 'anna_full', 'dave_rust', 'jane_sys'],
+                domains: ['gmail.com', 'outlook.com', 'yahoo.com', 'hotmail.com', 'protonmail.com', 'icloud.com'],
+                projectTypes: ['Web App', 'API Service', 'Desktop Tool', 'Mobile App', 'CLI Tool', 'Library', 'Framework', 'Plugin'],
+                techStacks: ['React', 'Vue.js', 'Angular', 'Svelte', 'Node.js', 'Python', 'Rust', 'Go', 'TypeScript', 'JavaScript'],
+                adjectives: ['awesome', 'modern', 'fast', 'secure', 'scalable', 'elegant', 'powerful', 'lightweight', 'robust', 'innovative'],
+                nouns: ['platform', 'system', 'tool', 'application', 'service', 'framework', 'solution', 'engine', 'manager', 'generator']
+            },
+            zh: {
+                usernames: ['alex_dev', 'sarah_code', 'mike_tech', 'emma_build', 'john_stack', 'lisa_web', 'tom_api', 'anna_full', 'dave_rust', 'jane_sys'],
+                domains: ['qq.com', '163.com', '126.com', 'sina.com', 'sohu.com', 'gmail.com'],
+                projectTypes: ['网络应用', 'API服务', '桌面工具', '移动应用', '命令行工具', '类库', '框架', '插件'],
+                techStacks: ['React', 'Vue.js', 'Angular', 'Svelte', 'Node.js', 'Python', 'Rust', 'Go', 'TypeScript', 'JavaScript'],
+                adjectives: ['棒棒的', '现代化的', '快速的', '安全的', '可扩展的', '优雅的', '强大的', '轻量级的', '健壮的', '创新的'],
+                nouns: ['平台', '系统', '工具', '应用', '服务', '框架', '解决方案', '引擎', '管理器', '生成器']
+            }
         };
 
         // Random generation function
@@ -256,28 +519,47 @@
 
         // Generate random project name
         function generateProjectName() {
-            const adjective = getRandomItem(randomData.adjectives);
-            const noun = getRandomItem(randomData.nouns);
-            const tech = getRandomItem(randomData.techStacks);
-            return `${adjective.charAt(0).toUpperCase() + adjective.slice(1)} ${tech} ${noun.charAt(0).toUpperCase() + noun.slice(1)}`;
+            const data = randomData[currentLang];
+            const adjective = getRandomItem(data.adjectives);
+            const noun = getRandomItem(data.nouns);
+            const tech = getRandomItem(data.techStacks);
+            
+            if (currentLang === 'zh') {
+                return `${adjective}${tech}${noun}`;
+            } else {
+                return `${adjective.charAt(0).toUpperCase() + adjective.slice(1)} ${tech} ${noun.charAt(0).toUpperCase() + noun.slice(1)}`;
+            }
         }
 
         // Generate random project description
         function generateProjectDescription(projectName, projectType) {
-            const templates = [
-                `${projectName} is a ${projectType.toLowerCase()} built with modern technologies. It provides a seamless user experience and robust functionality for developers and end-users alike.`,
-                `This ${projectType.toLowerCase()} offers cutting-edge features and performance optimization. ${projectName} is designed to be scalable, maintainable, and developer-friendly.`,
-                `${projectName} is an innovative ${projectType.toLowerCase()} that solves real-world problems with elegant solutions. Built with best practices and modern architecture patterns.`,
-                `A comprehensive ${projectType.toLowerCase()} that combines powerful features with intuitive design. ${projectName} is perfect for both beginners and advanced users.`
-            ];
+            let templates;
+            
+            if (currentLang === 'zh') {
+                templates = [
+                    `${projectName}是一个使用现代技术构建的${projectType}。它为开发者和用户提供了无缝的用户体验和强大的功能。`,
+                    `这个${projectType}提供了前沿的功能和性能优化。${projectName}被设计为可扩展、可维护和对开发者友好的。`,
+                    `${projectName}是一个创新的${projectType}，使用优雅的解决方案解决现实世界的问题。采用最佳实践和现代架构模式构建。`,
+                    `一个综合性的${projectType}，将强大的功能与直观的设计相结合。${projectName}适合初学者和高级用户使用。`
+                ];
+            } else {
+                templates = [
+                    `${projectName} is a ${projectType.toLowerCase()} built with modern technologies. It provides a seamless user experience and robust functionality for developers and end-users alike.`,
+                    `This ${projectType.toLowerCase()} offers cutting-edge features and performance optimization. ${projectName} is designed to be scalable, maintainable, and developer-friendly.`,
+                    `${projectName} is an innovative ${projectType.toLowerCase()} that solves real-world problems with elegant solutions. Built with best practices and modern architecture patterns.`,
+                    `A comprehensive ${projectType.toLowerCase()} that combines powerful features with intuitive design. ${projectName} is perfect for both beginners and advanced users.`
+                ];
+            }
+            
             return getRandomItem(templates);
         }
 
         // Random fill functionality
         document.getElementById('randomFillBtn').addEventListener('click', function () {
-            const username = getRandomItem(randomData.usernames);
-            const domain = getRandomItem(randomData.domains);
-            const projectType = getRandomItem(randomData.projectTypes);
+            const data = randomData[currentLang];
+            const username = getRandomItem(data.usernames);
+            const domain = getRandomItem(data.domains);
+            const projectType = getRandomItem(data.projectTypes);
             const projectName = generateProjectName();
             const projectDescription = generateProjectDescription(projectName, projectType);
 
@@ -287,10 +569,15 @@
             document.getElementById('project_name').value = projectName;
             document.getElementById('project_description').value = projectDescription;
 
+            // Update clear button visibility for all fields
+            const inputs = document.querySelectorAll('input, textarea');
+            inputs.forEach(input => updateClearButtonVisibility(input));
+
             // Add visual feedback
             const button = this;
             const originalText = button.textContent;
-            button.textContent = '✨ Fields Filled!';
+            const successText = translations[currentLang].randomFillSuccess;
+            button.textContent = successText;
             button.style.background = 'linear-gradient(135deg, #48bb78, #38a169)';
 
             setTimeout(() => {
@@ -320,7 +607,7 @@
             error.style.display = 'none';
             success.style.display = 'none';
             loading.style.display = 'block';
-            loading.textContent = `Generating ${type} zip file...`;
+            loading.textContent = type === 'server' ? translations[currentLang].generatingServer : translations[currentLang].generatingClient;
             serverZipBtn.disabled = true;
             clientZipBtn.disabled = true;
 
@@ -334,7 +621,7 @@
 
             // Validate form data
             if (!formData.username || !formData.email || !formData.project_name || !formData.project_description) {
-                error.textContent = 'Please fill in all fields before downloading.';
+                error.textContent = translations[currentLang].validationError;
                 error.style.display = 'block';
                 loading.style.display = 'none';
                 serverZipBtn.disabled = false;
@@ -374,18 +661,19 @@
                     window.URL.revokeObjectURL(url);
                     document.body.removeChild(a);
 
-                    success.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} zip file generated successfully! Download started: ${filename}`;
+                    const typeText = currentLang === 'zh' ? (type === 'server' ? '服务端' : '客户端') : type.charAt(0).toUpperCase() + type.slice(1);
+                    success.textContent = typeText + translations[currentLang].downloadSuccess + filename;
                     success.style.display = 'block';
                 } else {
                     const errorData = await response.json();
                     throw new Error(errorData.error || `Failed to generate ${type} zip file`);
                 }
             } catch (err) {
-                error.textContent = `Error: ${err.message}`;
+                error.textContent = translations[currentLang].downloadError + err.message;
                 error.style.display = 'block';
             } finally {
                 loading.style.display = 'none';
-                loading.textContent = 'Generating zip file...';
+                loading.textContent = translations[currentLang].generatingZip;
                 serverZipBtn.disabled = false;
                 clientZipBtn.disabled = false;
             }

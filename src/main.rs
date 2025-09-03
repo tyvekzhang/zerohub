@@ -15,6 +15,7 @@ use tracing_subscriber;
 use uuid::Uuid;
 use zip::{ZipWriter, ZipArchive, write::FileOptions, CompressionMethod};
 use tempfile::NamedTempFile;
+use percent_encoding;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserInfo {
@@ -255,9 +256,15 @@ async fn generate_server_zip(
             
             println!("[DEBUG] Successfully created server zip: {}, size: {} bytes", filename, zip_data.len());
             
+            // Use RFC 5987 encoding for international filenames
+            let encoded_filename = percent_encoding::utf8_percent_encode(
+                &filename, 
+                percent_encoding::NON_ALPHANUMERIC
+            ).to_string();
+            
             let headers = [
                 (header::CONTENT_TYPE, "application/zip"),
-                (header::CONTENT_DISPOSITION, &format!("attachment; filename=\"{}\"", filename)),
+                (header::CONTENT_DISPOSITION, &format!("attachment; filename*=UTF-8''{}", encoded_filename)),
             ];
             
             (StatusCode::OK, headers, zip_data).into_response()
@@ -287,9 +294,15 @@ async fn generate_client_zip(
             
             println!("[DEBUG] Successfully created client zip: {}, size: {} bytes", filename, zip_data.len());
             
+            // Use RFC 5987 encoding for international filenames
+            let encoded_filename = percent_encoding::utf8_percent_encode(
+                &filename, 
+                percent_encoding::NON_ALPHANUMERIC
+            ).to_string();
+            
             let headers = [
                 (header::CONTENT_TYPE, "application/zip"),
-                (header::CONTENT_DISPOSITION, &format!("attachment; filename=\"{}\"", filename)),
+                (header::CONTENT_DISPOSITION, &format!("attachment; filename*=UTF-8''{}", encoded_filename)),
             ];
             
             (StatusCode::OK, headers, zip_data).into_response()

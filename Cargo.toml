@@ -22,3 +22,4 @@ rust-embed = "8.5.0"
 mime_guess = "2.0"
 tower = "0.4"
 tower-http = { version = "0.5", features = ["fs", "cors", "trace"] }
+percent-encoding = "2.3"
